@@ -14,13 +14,14 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 
 import android.os.Process;
+import android.content.DialogInterface;
+import android.os.Build;
+// import android.R;
 
 public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
         Intent intent = getIntent();
         String action = intent.getAction();
         String type = intent.getType();
@@ -29,13 +30,31 @@ public class MainActivity extends Activity {
         {
             if (checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, Process.myPid(), Process.myUid()) != PackageManager.PERMISSION_GRANTED)
             {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage("Go to settings to grant storage permission if you want to write video files (this tool's purpose)").setTitle("Permission");
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                if (Build.VERSION.SDK_INT >= 14) {
+                    setTheme(android.R.style.Theme_DeviceDefault_NoActionBar);
+                }
+                else if (Build.VERSION.SDK_INT >= 11) {
+                    setTheme(android.R.style.Theme_Holo_NoActionBar);
+                }
+                super.onCreate(savedInstanceState);
+                
+                (new AlertDialog.Builder(this))
+                    .setMessage("Go to settings to grant storage permission if you want to write video files (this tool's purpose)")
+                    .setTitle("Permission Not Granted")
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    })
+                    .create()
+                    .show();
             }
             else
             {
+                setTheme(android.R.style.Theme_NoDisplay);
+                super.onCreate(savedInstanceState);
+                
                 Uri data = intent.getData();
 
                 DownloadManager.Request req = new DownloadManager.Request(data);
@@ -44,9 +63,15 @@ public class MainActivity extends Activity {
 
                 DownloadManager dm = getSystemService(DownloadManager.class);
                 dm.enqueue(req);
-
+                
                 finish();
             }
+        }
+        else {
+            setTheme(android.R.style.Theme_NoDisplay);
+            super.onCreate(savedInstanceState);
+            
+            finish();
         }
     }
 }

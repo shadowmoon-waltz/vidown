@@ -7,7 +7,7 @@
     <application
         android:label="vidown">
         <activity
-            android:name="com.sw.vidown.MainActivity"
+            android:name=".MainActivity"
             android:label="vidown"
             android:excludeFromRecents="true">
             <intent-filter>
